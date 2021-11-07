@@ -1,0 +1,19 @@
+Source: dasm8080
+Section: programming
+Priority: optional
+Maintainer: Oleg Kozhukharenko <depositmail@rambler.ru>
+Build-Depends:	qt5-qmake,
+                qtbase5-dev,
+                qtbase5-dev-tools,
+                qtmultimedia5-dev
+Standards-Version: 4.5.0
+Homepage: https://github.com/CineEncoder/dasm8080
+
+Package: dasm8080
+Architecture: any
+Depends:	${misc:Depends},
+          ${shlibs:Depends}
+Description: Dasm8080 ver 1.0
+ Dasm8080 it is a GUI tool for disassembling executable
+ files for the intel 8080 microprocessor.
+ Licence: GNU GPL v.3

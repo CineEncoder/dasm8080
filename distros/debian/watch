@@ -1,0 +1,2 @@
+version=1
+https://github.com/CineEncoder/dasm8080/tags .*/archive/[a-z](\d\S*)\.tar\.gz

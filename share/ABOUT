@@ -1,0 +1,6 @@
+Dasm8080 v1.0
+
+Dasm8080 it is a GUI tool for disassembling executable 
+files for the intel 8080 microprocessor.
+Supported operating system: Windows/Linux x86_64
+Licence: GNU GPL v.3

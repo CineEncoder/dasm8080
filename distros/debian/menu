@@ -1,0 +1,4 @@
+?package(dasm8080):needs="x11" \
+	section="Applications/Programming" \
+	title="Dasm8080" \
+	command="/usr/bin/dasm8080"

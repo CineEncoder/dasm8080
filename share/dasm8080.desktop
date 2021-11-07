@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Dasm8080
+Comment=Disassembler for i8080
+Icon=dasm8080
+Exec=dasm8080 %U
+Terminal=false
+Categories=Programming;
+Keywords=code;programming;disassembler;assembler;8080;

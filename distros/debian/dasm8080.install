@@ -1,0 +1,4 @@
+builddir/dasm8080 usr/bin
+share/dasm8080.desktop usr/share/applications
+share/dasm8080.wav usr/share/sounds
+share/dasm8080.png usr/share/icons/hicolor/64x64/apps
