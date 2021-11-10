@@ -426,7 +426,7 @@ void MainWindow::exportFile()
                     line += QString("\n");
 
 
-                    if (command == "RET" || command == "JMP" || command == "PCHL") {
+                    if (command == "RET" || command == "JMP" || command == "PCHL" || command.indexOf("RST") != -1) {
                         line += QString("\n;=================== Block ======================\n\n");
                     }
                 }
@@ -496,7 +496,7 @@ void MainWindow::recognizeBlock(int addr)
         int commandSize = convertHexToCmd(addr);
         QString cmd = tableMap[addr].command;
         followToRefs(addr, commandSize);
-        if (cmd == "JMP" || cmd == "RET" || cmd == "PCHL") {
+        if (cmd == "JMP" || cmd == "RET" || cmd == "PCHL" || cmd.indexOf("RST") != -1) {
             break;
         }
         addr += commandSize;
