@@ -123,8 +123,8 @@ void MainWindow::showEvent(QShowEvent *event)   /*** Call set parameters ***/
         ui->actionRedo->setEnabled(false);
         connect(ui->actionImport, &QAction::triggered, this, &MainWindow::importFile);
         connect(ui->actionExport, &QAction::triggered, this, &MainWindow::exportFile);
-        //connect(ui->actionSave_project_as, &QAction::triggered, this, &MainWindow::on_actionSaveProject_clicked);
-        //connect(ui->actionLoad_project, &QAction::triggered, this, &MainWindow::on_actionLoadProject_clicked);
+        connect(ui->actionSave_Project, &QAction::triggered, this, &MainWindow::on_actionSaveProject_clicked);
+        connect(ui->actionLoad_Project, &QAction::triggered, this, &MainWindow::on_actionLoadProject_clicked);
         connect(ui->actionRedo, &QAction::triggered, this, &MainWindow::on_actionRedo_clicked);
         connect(ui->actionUndo, &QAction::triggered, this, &MainWindow::on_actionUndo_clicked);
         connect(ui->tableWidget, &QTableWidget::customContextMenuRequested, this, &MainWindow::provideContextMenu);
@@ -217,29 +217,102 @@ void MainWindow::on_pushButton_Export_clicked()
     exportFile();
 }
 
+QDataStream& operator<<(QDataStream &out, const table &str)
+{
+    out << str.hex;
+    out << str.hex_type;
+    out << str.label;
+    out << str.command;
+    out << str.command_data;
+    return out;
+}
+
+QDataStream& operator>>(QDataStream &in, table &str)
+{
+    in >> str.hex;
+    in >> str.hex_type;
+    in >> str.label;
+    in >> str.command;
+    in >> str.command_data;
+    return in;
+}
+
 void MainWindow::on_actionSaveProject_clicked()
 {
-    /*QString filename = QString("C:/Users/User/Downloads/Vector-06C/untitled.dasm");
-    QFile savedFile(filename);
-    if (savedFile.open(QIODevice::WriteOnly)) {
-        QDataStream out(&savedFile);
-        QDataStream& operator<<(QDataStream &, const table &);
-        QDataStream& operator>>(QDataStream &, const table &);
-        out.setVersion(QDataStream::Qt_4_0);
-        out << tableMap;
-    }*/
+    QString outFilePath("");
+    int rowCount = ui->tableWidget->rowCount();
+    if (rowCount > 0) {
+        QFileDialog saveFileWindow(nullptr);
+        saveFileWindow.setWindowTitle("Save File");
+        saveFileWindow.setMinimumWidth(600);
+        saveFileWindow.setWindowFlags(Qt::Dialog | Qt::SubWindow);
+    #if defined (Q_OS_UNIX)
+        saveFileWindow.setOptions(QFileDialog::DontUseNativeDialog);
+    #endif
+        saveFileWindow.setOptions(QFileDialog::DontResolveSymlinks);
+        saveFileWindow.setAcceptMode(QFileDialog::AcceptSave);
+        saveFileWindow.setDirectory(_inputFolder);
+        saveFileWindow.selectFile(QString("untitled.dasm"));
+        saveFileWindow.setNameFilter("Project file (*.dasm)");
+        if (saveFileWindow.exec() != QFileDialog::AcceptSave) {
+            return;
+        }
+        outFilePath = saveFileWindow.selectedFiles().at(0);
+        QFile savedFile(outFilePath);
+        if (savedFile.open(QIODevice::WriteOnly)) {
+            QDataStream out(&savedFile);
+            out.setVersion(QDataStream::Qt_4_0);
+            out << (quint32)0xAEFBEF;
+            out << tableMap;
+            savedFile.close();
+            showMessage(tr("Project saved!"));
+        } else {
+            showMessage(tr("Can`t save file!"));
+        }
+    }
+    else {
+        showMessage(tr("Import file first!"));
+    }
 }
 
 void MainWindow::on_actionLoadProject_clicked()
 {
-    /*QString filename = QString("C:/Users/User/Downloads/Vector-06C/untitled.dasm");
-    QFile loadedFile(filename);
+    QString selectedFilePath = "";
+    QFileDialog openFilesWindow(nullptr);
+    openFilesWindow.setWindowTitle("Open Project");
+    openFilesWindow.setMinimumWidth(600);
+    openFilesWindow.setWindowFlags(Qt::Dialog | Qt::SubWindow);
+#if defined (Q_OS_UNIX)
+    openFilesWindow.setOptions(QFileDialog::DontUseNativeDialog);
+#endif
+    openFilesWindow.setOptions(QFileDialog::DontResolveSymlinks);
+    openFilesWindow.setAcceptMode(QFileDialog::AcceptOpen);
+    openFilesWindow.setFileMode(QFileDialog::ExistingFile);
+    openFilesWindow.setDirectory(_inputFolder);
+    openFilesWindow.setNameFilter(tr("Project files: *.dasm (*.dasm)"));
+    if (openFilesWindow.exec() != QFileDialog::Accepted) {
+        return;
+    }
+    selectedFilePath = openFilesWindow.selectedFiles().at(0);
+    QFile loadedFile(selectedFilePath);
     if (loadedFile.open(QIODevice::ReadOnly)) {
-        tableMap.clear();
         QDataStream in(&loadedFile);
         in.setVersion(QDataStream::Qt_4_0);
+        quint32 magic;
+        in >> magic;
+        if (magic != 0xAEFBEF) {
+            loadedFile.close();
+            showMessage(tr("Incorrect project file!!!"));
+            return;
+        }
+        tableMap.clear();
         in >> tableMap;
-    }*/
+        loadedFile.close();
+        updateTableWidget();
+    }
+    else {
+        showMessage(tr("Cannot open file!!!"));
+    }
 }
 
 void MainWindow::on_actionUndo_clicked()
@@ -360,15 +433,16 @@ void MainWindow::exportFile()
     int rowCount = ui->tableWidget->rowCount();
     if (undefRowsCount == 0 && errors == 0 && rowCount > 0) {
         QFileDialog saveFileWindow(nullptr);
+        saveFileWindow.setWindowTitle("Save File");
+        saveFileWindow.setMinimumWidth(600);
+        saveFileWindow.setWindowFlags(Qt::Dialog | Qt::SubWindow);
     #if defined (Q_OS_UNIX)
         saveFileWindow.setOptions(QFileDialog::DontUseNativeDialog);
     #endif
-        saveFileWindow.setMinimumWidth(600);
         saveFileWindow.setOptions(QFileDialog::DontResolveSymlinks);
         saveFileWindow.setAcceptMode(QFileDialog::AcceptSave);
         saveFileWindow.setDirectory(_inputFolder);
         saveFileWindow.selectFile(QString("untitled.asm"));
-        saveFileWindow.setWindowTitle("Save File");
         saveFileWindow.setNameFilter("Asm file (*.asm)");
         if (saveFileWindow.exec() != QFileDialog::AcceptSave) {
             return;

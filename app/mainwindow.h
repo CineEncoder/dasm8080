@@ -11,19 +11,27 @@
 #include <iostream>
 #include <math.h>
 
-#define IntStructMap QMap<int, table>
-#define UCharMap QMap<unsigned char, unsigned char>
-#define UCharIntMap QMap<unsigned char, int>
-#define UCharStringMap QMap<unsigned char, QString>
-#define StringStringMap QMap<QString, QString>
-#define IntUCharMap QMap<int, unsigned char>
+typedef struct table {
+    unsigned char hex = 0;
+    QString hex_type = "";
+    int label = -1;
+    QString command = "";
+    int command_data = -1;
+} table;
 
-#define IntStructPair QPair<int, table>
-#define IntUCharPair QPair<int, unsigned char>
+typedef  QMap<int, table> IntStructMap;
+typedef  QMap<unsigned char, unsigned char> UCharMap;
+typedef  QMap<unsigned char, int> UCharIntMap;
+typedef  QMap<unsigned char, QString> UCharStringMap;
+typedef  QMap<QString, QString> StringStringMap;
+typedef  QMap<int, unsigned char> IntUCharMap;
 
-#define IntStructIterator QMap<int, table>::iterator
-#define StringIterator QMap<QString, QString>::iterator
-#define IntUCharIterator QMap<int, unsigned char>::iterator
+typedef  QPair<int, table> IntStructPair;
+typedef  QPair<int, unsigned char> IntUCharPair;
+
+typedef  QMap<int, table>::iterator IntStructIterator;
+typedef  QMap<QString, QString>::iterator StringIterator;
+typedef  QMap<int, unsigned char>::iterator IntUCharIterator;
 
 using namespace std;
 
@@ -42,6 +50,10 @@ public:
     MainWindow(QWidget *parent = nullptr);
 
     ~MainWindow();
+
+    friend QDataStream& (operator<<)(QDataStream &out, table &str);
+
+    friend QDataStream& (operator>>)(QDataStream &in, table &str);
 
 private slots:
 
@@ -72,14 +84,6 @@ private:
     enum Columns {
       ADDR, HEX, TYPE, LABEL, COMMAND, DATA, CHAR,
       B7, B6, B5, B4, B3, B2, B1, B0
-    };
-
-    struct table {
-        unsigned char hex = 0;
-        QString hex_type = QString("");
-        int label = -1;
-        QString command = QString("");
-        int command_data = -1;
     };
 
     int offset;

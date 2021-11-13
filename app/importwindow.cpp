@@ -36,30 +36,24 @@ void ImportWindow::setParams(QString *filePath, bool *acceptFlag, int *offset)
 
 void ImportWindow::on_buttonSelectFile_clicked()
 {
-    QFileDialog *openFilesWindow = new QFileDialog(nullptr);
-    openFilesWindow->setFileMode(QFileDialog::ExistingFile);
-#ifdef Q_OS_WIN
-    openFilesWindow->setOptions(QFileDialog::DontResolveSymlinks);
+    selectedFilePath = "";
+    QFileDialog openFilesWindow(nullptr);
+    openFilesWindow.setWindowTitle("Open File");
+    openFilesWindow.setMinimumWidth(600);
+    openFilesWindow.setWindowFlags(Qt::Dialog | Qt::SubWindow);
+#if defined (Q_OS_UNIX)
+    openFilesWindow->setOptions(QFileDialog::DontUseNativeDialog);
 #endif
-    //openFilesWindow->setOptions(QFileDialog::DontUseNativeDialog | QFileDialog::DontResolveSymlinks);
-    openFilesWindow->setOptions(QFileDialog::DontResolveSymlinks);
-    openFilesWindow->setDirectory(QDir::homePath());
-    openFilesWindow->setMinimumWidth(600);
-    openFilesWindow->setWindowTitle("Open File");
-    openFilesWindow->setNameFilter(tr("Bin Files: *.rom, *.bin (*.rom *.bin);;All files (*.*)"));
-    openFilesWindow->setWindowFlags(Qt::Dialog | Qt::SubWindow);
-    openFilesWindow->exec();
-    int res = openFilesWindow->result();
-    const QStringList filePaths = openFilesWindow->selectedFiles();
-    delete openFilesWindow;
-    if (res == 1) {
-        selectedFilePath = filePaths.at(0);
-        ui->lineEdit->setText(selectedFilePath);
-    } else if (res != 1 && res != 0) {
-        selectedFilePath = "";
-        ui->lineEdit->setText(selectedFilePath);
-        showMessage(tr("Incorrect file."));
+    openFilesWindow.setOptions(QFileDialog::DontResolveSymlinks);
+    openFilesWindow.setAcceptMode(QFileDialog::AcceptOpen);
+    openFilesWindow.setFileMode(QFileDialog::ExistingFile);
+    openFilesWindow.setDirectory(QDir::homePath());
+    openFilesWindow.setNameFilter(tr("Bin Files: *.rom, *.bin (*.rom *.bin);;All files (*.*)"));
+    if (openFilesWindow.exec() != QFileDialog::Accepted) {
+        return;
     }
+    selectedFilePath = openFilesWindow.selectedFiles().at(0);
+    ui->lineEdit->setText(selectedFilePath);
 }
 
 void ImportWindow::on_buttonApply_clicked()
